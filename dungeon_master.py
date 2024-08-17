@@ -96,15 +96,27 @@ async def start_of_the_DND(message: Message, session: AsyncSession,
     mt = message.text
     if data['META']['quest'] != 0:
         if message.voice:
+            #await message.answer("У нас работала расшифровка Whisper, но, к сожалению, ключ от него протух :(")
             await bot.download(
                 message.voice,
                 destination=f'/tmp/{message.voice.file_id}.ogg'
             )
-            mt = await groq_client.audio.transcriptions.create(
+            headers = {
+                'Authorization': 'bearer ' + os.getenv('GROQ_KEY')
+            }
+            file = {
+                'file': open(f"/tmp/{message.voice.file_id}.ogg", "rb"),
+                'model': (None, 'whisper-large-v3'),
+                'response_format': (None, 'json')
+            }
+            mt = await asession.post('https://api.groq.com/openai/v1/audio/transcriptions', headers=headers, files=file, proxies={"https":os.getenv("PROXY")})
+            print(mt.status_code)
+            mt = mt.json()
+            mt = mt['text']
+            '''mt = await groq_client.audio.transcriptions.create(
                 model="whisper-1" if os.getenv("USE_OPENAI") == 'True' else "whisper-large-v3",
                 file=open(f"/tmp/{message.voice.file_id}.ogg", "rb")
-            )
-            mt = mt.text
+            )'''
         chat_completion = await groq_client.with_options(max_retries=3).chat.completions.create(
             messages=[
                 dm(data),
@@ -211,7 +223,7 @@ async def start_of_the_DND(message: Message, session: AsyncSession,
                         quality="standard",
                         n=1,
                     )'''
-                    headers = {'x-api-key': os.getenv('SEGMIND_KEY')}
+                    '''headers = {'x-api-key': os.getenv('SEGMIND_KEY')}
                     attempts = 10
                     URL = "https://api.segmind.com/v1/flux-schnell";
                     data = {
@@ -234,8 +246,20 @@ async def start_of_the_DND(message: Message, session: AsyncSession,
                                chat_id=chat_id, message_id=msg_id)
                            break
                        attempts-=1
-                       await asyncio.sleep(10)
-
+                       await asyncio.sleep(10)'''
+                    headers = {
+                        "Authorization": "Key " + os.getenv("FAL_KEY"),
+                        "Content-Type": "application/json"
+                    }
+                    json_data = {
+                        'prompt': img['prompt'],
+                        "image_size": "square"
+                    }
+                    res = await asession.post("https://fal.run/fal-ai/flux/schnell", headers=headers, json=json_data)
+                    res = res.json()
+                    await bot.edit_message_media(
+                               media=InputMediaPhoto(media=URLInputFile(res['images'][0]['url']), caption=ans['message']),
+                               chat_id=chat_id, message_id=msg_id)
                 else:
                     await message.answer(ans['message']+'.')
         except Exception as e:
