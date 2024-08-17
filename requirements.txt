@@ -10,3 +10,5 @@ sqlalchemy-cockroachdb
 asyncpg
 redis
 httpx[socks]
+requests_html
+lxml_html_clean
