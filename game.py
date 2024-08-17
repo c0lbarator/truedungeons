@@ -14,8 +14,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from openai import AsyncClient
 
 import test_tg_bot.app.keyboards as kb
-from test_tg_bot.app.middlewares import TestMiddleware
-from test_tg_bot.app.storage import *
 from db import get_game
 from aiogram.filters import callback_data
 from aiogram.types import (ReplyKeyboardMarkup, KeyboardButton,
