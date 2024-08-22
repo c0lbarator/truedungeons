@@ -1,6 +1,7 @@
 --------------
 gogrok RPG bot
 https://t.me/TrueDnDbot
+Новая презентация: https://github.com/c0lbarator/truedungeons/blob/master/pitch_Olgrok.pdf
 --------------
 Как запустить?
 1. Создать виртуальное окружение и установить зависимости:
